@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
-const generateAuthToken = async (phoneNumber) => {
+const generateAuthToken = (phoneNumber) => {
   const authenticationToken = jwt.sign({ phoneNumber }, process.env.JWT_SECRET_KEY, {
-    algorithm: "RS256",
+    algorithm: process.env.AUTHENTICATION_ALGORITHM,
   });
   return authenticationToken;
 };
 
-module.exports = auth;
+module.exports = { generateAuthToken };

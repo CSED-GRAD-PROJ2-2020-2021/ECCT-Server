@@ -9,7 +9,7 @@ const AuthenticationSchema = new Schema({
     index: true,
   },
   pinCode: {
-    type: Number,
+    type: String,
     required: true,
   },
   hashedPhoneNumber: {

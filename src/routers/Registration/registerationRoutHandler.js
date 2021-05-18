@@ -5,5 +5,6 @@ const registrationServices = require("../../services/Registration/registrationSe
 const router = express.Router();
 
 router.post("/registration", registrationServices.register);
+router.post("/regAndAuth", registrationServices.userAuthAndRegister);
 
 module.exports = router;

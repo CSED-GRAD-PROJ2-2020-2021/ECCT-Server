@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config({ path: "./.env" });
 require("./DBConnection/DBConnection");
 
 const ERRouter = require("./routers/ExposureStatusRequest/exposureRequestRoutHandler");
@@ -12,9 +13,5 @@ app.use(express.json());
 app.use(ERRouter);
 app.use(InfectionDecRouter);
 app.use(RegistrationRouter);
-
-app.get("/test", (req, res) => {
-  res.status(200).send("welcome");
-});
 
 module.exports = app;
