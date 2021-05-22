@@ -44,7 +44,9 @@ const encryptNumber = (num, encryptionAlgorithm, key, iv) => {
 const encryptJsonObj = (JsonObj, encryptionAlgorithm, key, iv) => {
   let encryptedObj = {};
   Object.keys(JsonObj).map(function (JsonObjkey, index) {
-    if (JsonObjkey != "ID") {
+    if (JsonObjkey == "ID") {
+      encryptedObj[JsonObjkey] = JsonObj[JsonObjkey];
+    } else {
       encryptedObj[JsonObjkey] = encryptData(JsonObj[JsonObjkey], key, iv);
     }
   });
