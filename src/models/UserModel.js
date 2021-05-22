@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const Schema = mongoose.Schema;
 
 // {not done yet this database must change to be all strings for encryption}
-const IDTableSchema = new Schema({
+const userSchema = new Schema({
   ID: {
     type: String,
     required: true,
@@ -11,11 +11,11 @@ const IDTableSchema = new Schema({
     index: true,
   },
   UN: {
-    type: Boolean,
+    type: String,
     required: true,
   },
   SRE: {
-    type: Number,
+    type: String,
     required: true,
   },
   LEPM: {
@@ -30,13 +30,13 @@ const IDTableSchema = new Schema({
     ],
   },
   ERSA: {
-    type: Number,
+    type: String,
     required: true,
   },
 });
 
 //method to check whether the phone number is valid or not
-IDTableSchema.statics.PhoneNumberValidation = (phoneNumber) => {
+userSchema.statics.PhoneNumberValidation = (phoneNumber) => {
   if (phoneNumber.match(/^(01\d{9})$/g) === null) {
     throw new Error("Invalid phone number");
   }
@@ -44,15 +44,14 @@ IDTableSchema.statics.PhoneNumberValidation = (phoneNumber) => {
 };
 
 //check if phone number exists
-IDTableSchema.statics.phoneNumberUniqueness = async (phoneNumber) => {
+userSchema.statics.phoneNumberUniqueness = async (phoneNumber) => {
   hashedPhoneNumber = crypto.createHash("sha256").update(phoneNumber).digest("hex");
-
-  const user = await IDTable.findOne({ ID: hashedPhoneNumber });
+  const user = await userModel.findOne({ ID: hashedPhoneNumber });
   if (user) {
     throw new Error("A user with the same phone number exists !!");
   }
   return hashedPhoneNumber;
 };
 
-const IDTable = mongoose.model("Users", IDTableSchema);
-module.exports = IDTable;
+const userModel = mongoose.model("Users", userSchema);
+module.exports = userModel;

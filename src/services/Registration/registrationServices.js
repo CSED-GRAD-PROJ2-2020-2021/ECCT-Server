@@ -15,15 +15,20 @@ const register = async (req, res) => {
     UserModel.PhoneNumberValidation(phoneNumber);
     //check if phone number is already exists and hashing it
     const hashedPhoneNumber = await UserModel.phoneNumberUniqueness(phoneNumber);
+    //check if the user previously sent a request to sign up
+    const prevAuth = await AuthenticationModel.findOne({ hashedPhoneNumber: hashedPhoneNumber });
+    if (prevAuth) {
+      throw new Error("A request has been already sent");
+    }
     //authentication and pin code generation and sending to UserAuth
     const authenticationToken = authentication.generateAuthToken(hashedPhoneNumber);
-    const pinCode = pinCodeManipulation.generatePinCode();
-    pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
+    const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
+    //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
     const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });
     await newAuth.save();
-    res.status(200).send({ authenticationToken });
+    res.status(200).send({ authenticationToken, pinCode });
   } catch (error) {
-    res.status(403).send(error);
+    res.status(403).send({ error: error.message });
   }
 };
 
@@ -36,12 +41,17 @@ const userAuthAndRegister = async (req, res) => {
     }
     const authenticationToken = req.body.authenticationToken;
     const pinCode = req.body.pinCode;
-    const UserAuth = await AuthenticationModel.find({ authenticationToken, pinCode });
+
+    const UserAuth = await AuthenticationModel.findOne({
+      authenticationToken: authenticationToken,
+      pinCode: pinCode,
+    });
+
     if (!UserAuth) {
       throw new Error("Not Authenticated request");
     }
     const hashedPhoneNumber = UserAuth.hashedPhoneNumber;
-    await UserAuth.remove();
+    //await UserAuth.remove();
     //user creation and encryption of data
     const newUser = {
       ID: hashedPhoneNumber,
@@ -58,7 +68,8 @@ const userAuthAndRegister = async (req, res) => {
     await newUserHashed.save();
     res.status(201).send({ hashedPhoneNumber, key, iv });
   } catch (error) {
-    res.status(401).send(error.body);
+    console.log(error);
+    res.status(401).send(error.message);
   }
 };
 module.exports = { register, userAuthAndRegister };

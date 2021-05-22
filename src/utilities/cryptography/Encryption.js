@@ -9,7 +9,6 @@ const generatePrivateKey = () => {
 
 const encryptData = (data, keyHex, ivHex) => {
   encryptionAlgorithm = process.env.ENCRYPTION_ALGORITHM;
-  console.log("2", data, process.env.ENCRYPTION_ALGORITHM);
   let iv = Buffer.from(ivHex, "hex"); // convert the iv from string to byte array
   let key = Buffer.from(keyHex, "hex"); // convert the key from string to byte array
 
@@ -45,7 +44,9 @@ const encryptNumber = (num, encryptionAlgorithm, key, iv) => {
 const encryptJsonObj = (JsonObj, encryptionAlgorithm, key, iv) => {
   let encryptedObj = {};
   Object.keys(JsonObj).map(function (JsonObjkey, index) {
-    encryptedObj[JsonObjkey] = encryptData(JsonObj[JsonObjkey], key, iv);
+    if (JsonObjkey != "ID") {
+      encryptedObj[JsonObjkey] = encryptData(JsonObj[JsonObjkey], key, iv);
+    }
   });
 
   return encryptedObj;
