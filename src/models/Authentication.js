@@ -15,6 +15,10 @@ const AuthenticationSchema = new Schema({
     type: String,
     required: true,
   },
+  isRegistered: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Authentication = mongoose.model("Authentication", AuthenticationSchema);
