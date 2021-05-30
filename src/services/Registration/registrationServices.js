@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const UserModel = require("../../models/UserModel");
-const AuthenticationModel = require("../../models/Authentication");
+const AuthenticationModel = require("../../models/AuthenticationModel");
 const jasonWebToken = require("../../utilities/authentication/JWT");
 const pinCodeManipulation = require("../../utilities/pinCode/pinCodeManipulation");
 const encryption = require("./../../utilities/cryptography/Encryption");
@@ -21,16 +21,12 @@ const register = async (req, res) => {
     if (prevAuth) {
       throw new Error("A request has been already sent");
     }
-    //creation of JWT using hashed phone number
-    const jwtPayload = {
-      hashedPhoneNumber: hashedPhoneNumber,
-    };
-    const authenticationToken = jasonWebToken.generateAuthToken(jwtPayload);
+
+    const authenticationToken = jasonWebToken.generateAuthToken();
     const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
     const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });
     await newAuth.save();
-
     res.status(200).send({ authenticationToken, pinCode });
   } catch (error) {
     res.status(403).send({ error: error.message });
@@ -67,10 +63,45 @@ const userAuthAndRegister = async (req, res) => {
     await newUserHashed.save();
     // assign the completion of user registration process
     req.authObject.isRegistered = true;
+    // delete any relation between the authentication token and user phone number
+    req.authObject.hashedPhoneNumber = "";
     await req.authObject.save();
     res.status(201).send({ authenticationToken: req.authObject.authenticationToken, key, iv });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ error: error.message });
+  }
+};
+
+const createNewAuthToken = async (req, res) => {
+  try {
+    if (!req.body.authenticationToken) {
+      throw new Error("Missing expired authentication token");
+    }
+    // check if the authentication token is expired or not
+    if (!jasonWebToken.isExpired(req.body.authenticationToken)) {
+      throw new Error("Authentication token is not expired yet");
+    }
+    const expiredAuthToken = req.body.authenticationToken;
+    // check if the the token is a valid user auth token
+    const auth = await AuthenticationModel.findOneAndDelete({
+      authenticationToken: expiredAuthToken,
+    });
+    if (!auth) {
+      throw new Error("Please Authenticate");
+    }
+
+    const newAuthToken = jasonWebToken.generateAuthToken();
+    const newAuth = new AuthenticationModel({
+      authenticationToken: newAuthToken,
+      pinCode: auth.pinCode,
+      hashedPhoneNumber: auth.hashedPhoneNumber,
+      isRegistered: auth.isRegistered,
+    });
+    await newAuth.save();
+    res.status(201).send({ authenticationToken: newAuthToken });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
 };
-module.exports = { register, userAuthAndRegister };
+module.exports = { register, userAuthAndRegister, createNewAuthToken };

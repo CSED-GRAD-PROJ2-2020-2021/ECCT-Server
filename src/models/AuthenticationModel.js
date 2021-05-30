@@ -13,7 +13,6 @@ const AuthenticationSchema = new Schema({
   },
   hashedPhoneNumber: {
     type: String,
-    required: true,
   },
   isRegistered: {
     type: Boolean,

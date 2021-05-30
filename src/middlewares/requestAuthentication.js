@@ -1,21 +1,21 @@
 const jwt = require("jsonwebtoken");
-const authenticationModel = require("../models/Authentication");
+const authenticationModel = require("../models/AuthenticationModel");
 
 const authenticate = async (req, res, next) => {
   try {
     const token = req.header("Authorization").replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    //check whether  signature is valid
+    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const authObject = await authenticationModel.findOne({
-      hashedPhoneNumber: decoded.hashedPhoneNumber,
       authenticationToken: token,
     });
     if (!authObject) {
-      throw new Error();
+      throw new Error("Please authenticate.");
     }
     req.authObject = authObject;
     next();
   } catch (error) {
-    res.status(401).send({ error: "Please authenticate." });
+    res.status(401).send({ error: error.message });
   }
 };
 
