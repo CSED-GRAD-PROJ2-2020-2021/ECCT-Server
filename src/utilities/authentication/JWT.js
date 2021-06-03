@@ -4,7 +4,10 @@ const randomString = require("randomstring");
 const generateAuthToken = () => {
   const randomPayload = randomString.generate({ length: 30, charset: "alphanumeric" });
   const authenticationToken = jwt.sign(
-    { randomPayload, exp: 3 * (24 * 60 * 60) },
+    {
+      exp: Math.floor(Date.now() / 1000) + 60 * 60,
+      data: randomPayload,
+    },
     process.env.JWT_SECRET_KEY,
     {
       algorithm: process.env.AUTHENTICATION_ALGORITHM,

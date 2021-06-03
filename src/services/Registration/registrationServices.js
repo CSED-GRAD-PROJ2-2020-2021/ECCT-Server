@@ -27,7 +27,8 @@ const register = async (req, res) => {
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
     const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });
     await newAuth.save();
-    res.status(200).send({ authenticationToken, pinCode });
+    console.log("registration 1 success");
+    res.status(200).send({ authenticationToken });
   } catch (error) {
     res.status(403).send({ error: error.message });
   }
@@ -66,7 +67,8 @@ const userAuthAndRegister = async (req, res) => {
     // delete any relation between the authentication token and user phone number
     req.authObject.hashedPhoneNumber = "";
     await req.authObject.save();
-    res.status(201).send({ authenticationToken: req.authObject.authenticationToken, key, iv });
+    console.log("registration 2 success");
+    res.status(201).send({ id: req.authObject.hashedPhoneNumber, key, iv });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error.message });
