@@ -6,8 +6,8 @@ const infectedNodeDeclarationReq = async (req, res) => {
   try {
     if (!req.body.healthAuthorityToken) {
       throw new Error("Missing health Authority token");
-    } else if (!req.body.infectedNodePets) {
-      throw new Error("Missing infected node pets");
+    } else if (!req.body.infectionPets) {
+      throw new Error("Missing infection pets");
     }
     // validate health authority token
     const healthAuthorityToken = req.body.healthAuthorityToken;
@@ -16,24 +16,24 @@ const infectedNodeDeclarationReq = async (req, res) => {
       throw new Error("unauthorized request, invalid health authority token");
     }
 
-    //creation of array of object where each object has two fields: PET and Upload Time
-    infectedNodePets = req.body.infectedNodePets;
-    const uploadDate = dateFormat(new Date(), "isoDate");
-    EListOfPets = infectedNodePets.map((PET) => {
-      EList.PetValidation(PET);
-      return { PET, uploadDate };
-    });
+    // adding upload date
+    // infectedNodePets = req.body.infectedNodePets;
+    // const uploadDate = dateFormat(new Date(), "isoDate");
+    // EListOfPets = infectedNodePets.map((PET) => {
+    //   EList.PetValidation(PET);
+    //   return { PET, uploadDate };
+    // });
 
-    await EList.insertMany(EListOfPets, { ordered: false }).catch((err) => {
-      throw new Error("error during inserting pets in database");
-    });
-    res.status(200).send("request has been handled successfully");
+    // adding infection pets in Elist table
+    for (const pet of req.body.infectionPets) {
+      const newInfectionPet = new EList(pet);
+      await newInfectionPet.save();
+    }
+    res.status(201).send("Pets have been received successfully");
   } catch (error) {
     console.log(error);
-    res.status(400).send(error.message);
+    res.status(400).send({ error: error.message });
   }
-
-  // 3- catching the error is wrong {need to enhance}
 };
 
 const receiveHealthAuthorityTokens = async (req, res) => {
@@ -48,7 +48,7 @@ const receiveHealthAuthorityTokens = async (req, res) => {
     }
     res.status(201).send("Tokens received");
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).send({ error: error.message });
   }
 };
 

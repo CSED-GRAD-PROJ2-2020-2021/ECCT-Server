@@ -1,7 +1,7 @@
 const express = require("express");
 
 const infectionDeclarationServices = require("../../services/InfectedNodeDeclaration/InfectionDeclerationServices");
-const authentication = require("../../middlewares/requestAuthentication");
+const authentication = require("../../middlewares/userRequestAuthentication");
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.post(
   authentication.authenticate,
   infectionDeclarationServices.infectedNodeDeclarationReq
 );
+
 router.post("/healthAuthorityCode", infectionDeclarationServices.receiveHealthAuthorityTokens);
 
 module.exports = router;

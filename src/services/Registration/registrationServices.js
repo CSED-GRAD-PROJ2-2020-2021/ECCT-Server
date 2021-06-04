@@ -22,7 +22,11 @@ const register = async (req, res) => {
       throw new Error("A request has been already sent");
     }
 
-    const authenticationToken = jasonWebToken.generateAuthToken();
+    const authenticationToken = jasonWebToken.generateAuthToken(
+      true,
+      undefined,
+      Math.floor(Date.now() / 1000) + 60 * 60
+    );
     const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
     const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });

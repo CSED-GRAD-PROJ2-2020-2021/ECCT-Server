@@ -1,37 +1,39 @@
 const ElistModel = require("../../models/Elist");
 
-const exp = async (req, res) => {
-  console.log(req.body);
-  UserID = req.body.id;
-  //UserPrivteKey = req.body.key;
-  UserPETsMetadata = req.body.pets;
-  //console.log(UserID, UserPETsMetadata);
-  let infectedPets = [];
+const exposureCheckRequest = async (req, res) => {
+  try {
+    // validation of request
+    if (!req.body.id) {
+      throw new Error("Missing user ID");
+    }
+    if (!req.body.key || !req.body.iv) {
+      throw new Error("Missing pair of key");
+    }
+    // user ID
+    const UserID = req.body.id;
+    // user encryption key pair: (key, iv)
+    const key = req.body.key;
+    const iv = req.body.iv;
 
-  // get his id row and check the UN {not done yet}
+    // user's exposure test pets
+    const exposureTestPets = req.body.exposureTestPets;
 
-  await Promise.all(
-    UserPETsMetadata.map(async (PETMetaData) => {
-      // findOne and deleting {delete not handled yet}
-      let result = await ElistModel.findOne({ PET: PETMetaData.PET });
-      if (!result) {
-        console.log("not found");
-      } else {
-        infectedPets.push({
-          PET: result.PET,
-          uploadDate: result.uploadDate,
-          rss: PETMetaData.rss,
-          meetingDate: PETMetaData.meetingDate,
-          duration: PETMetaData.duration,
-        });
+    // the result of matching user pets with Elist's pets
+    var matchedPets = [];
+    // get his id row and check the UN {not done yet}
+    for (const pet of exposureTestPets) {
+      const matched = await ElistModel.findOne({ PET: pet });
+      if (matched) {
+        matchedPets.push(matched);
       }
-    })
-  );
+    }
 
-  //put the result at the LEPM and redirect to another url to calculate the risk score
-
-  console.log(infectedPets);
-  return res.status(200).send("PETS received");
+    console.log(matchedPets);
+    //put the result at the LEPM and redirect to another url to calculate the risk score
+    res.status(200).send("Risk score");
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
 };
 
-module.exports = { exp };
+module.exports = { exposureCheckRequest };

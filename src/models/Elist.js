@@ -12,6 +12,18 @@ const EListSchema = new Schema({
     type: Date,
     required: true,
   },
+  meetingDate: {
+    type: Date,
+    required: true,
+  },
+  RSSI: {
+    type: String,
+    required: true,
+  },
+  duration: {
+    type: String,
+    required: true,
+  },
 });
 EListSchema.statics.PetValidation = (pet) => {
   if (pet.length != 64) {

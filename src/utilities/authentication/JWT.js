@@ -1,12 +1,18 @@
 const jwt = require("jsonwebtoken");
 const randomString = require("randomstring");
 //payload is object
-const generateAuthToken = () => {
-  const randomPayload = randomString.generate({ length: 30, charset: "alphanumeric" });
+const generateAuthToken = (ifRandomPayload, requestPayload, expirationInterval) => {
+  var payload = "";
+  if ((ifRandomPayload = true)) {
+    payload = randomString.generate({ length: 30, charset: "alphanumeric" });
+  } else {
+    payload = requestPayload;
+  }
+
   const authenticationToken = jwt.sign(
     {
-      exp: Math.floor(Date.now() / 1000) + 60 * 60,
-      data: randomPayload,
+      exp: expirationInterval,
+      data: payload,
     },
     process.env.JWT_SECRET_KEY,
     {

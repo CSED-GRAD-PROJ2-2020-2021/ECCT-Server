@@ -1,5 +1,5 @@
 const express = require("express");
-const authentication = require("../../middlewares/requestAuthentication");
+const authentication = require("../../middlewares/userRequestAuthentication");
 const registrationServices = require("../../services/Registration/registrationServices");
 // const JWT = require("../../utilities/authentication/JWT");
 // const jwt = require("jsonwebtoken");
