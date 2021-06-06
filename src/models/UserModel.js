@@ -22,10 +22,11 @@ const userSchema = new Schema({
     type: [
       {
         PET: String,
-        duration: Number,
-        rss: Number,
-        meetingDate: Date,
-        uploadDate: Date,
+        duration: String,
+        RSSI: String,
+        meetingDate: String,
+        uploadDate: String,
+        exposureDate: String,
       },
     ],
   },

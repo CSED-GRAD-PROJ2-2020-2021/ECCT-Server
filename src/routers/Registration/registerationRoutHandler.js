@@ -8,7 +8,8 @@ const router = express.Router();
 
 router.post("/registration", registrationServices.register);
 router.post("/regAndAuth", authentication.authenticate, registrationServices.userAuthAndRegister);
-router.get("/generateNewAuthToken", registrationServices.createNewAuthToken);
+//router.get("/generateNewAuthToken", registrationServices.createNewAuthToken);
+
 // router.get("/test", (req, res) => {
 //   const token = JWT.generateAuthToken();
 //   console.log(token);

@@ -24,9 +24,10 @@ const LEPMInstanceDecryption = (encryptedLEPMInstance, decryptionAlgorithm, key,
   decryptedInstance = {
     PET: decryptString(encryptedLEPMInstance["PET"], decryptionAlgorithm, key, iv),
     duration: decryptNumber(encryptedLEPMInstance["duration"], decryptionAlgorithm, key, iv),
-    rssi: decryptNumber(encryptedLEPMInstance["rssi"], decryptionAlgorithm, key, iv),
+    RSSI: decryptNumber(encryptedLEPMInstance["RSSI"], decryptionAlgorithm, key, iv),
     meetingDate: decryptString(encryptedLEPMInstance["meetingDate"], decryptionAlgorithm, key, iv),
     uploadDate: decryptString(encryptedLEPMInstance["uploadDate"], decryptionAlgorithm, key, iv),
+    exposureDate: decryptString(encryptedLEPMInstance["exposureDate"], decryptionAlgorithm, key, iv),
   };
 
   return decryptedInstance;
@@ -43,7 +44,8 @@ const LEPMDecryption = (encryptedLEPM, decryptionAlgorithm, key, iv) => {
 const decryptUser = (userModelInstance, key, iv) => {
   decryptionAlgorithm = process.env.ENCRYPTION_ALGORITHM;
   decryptedInstance = {
-    ID: decryptString(userModelInstance["ID"], decryptionAlgorithm, key, iv),
+    //ID: decryptString(userModelInstance["ID"], decryptionAlgorithm, key, iv),
+    ID: userModelInstance["ID"],
     UN: decryptBool(userModelInstance["UN"], decryptionAlgorithm, key, iv),
     SRE: decryptNumber(userModelInstance["SRE"], decryptionAlgorithm, key, iv),
     LEPM: LEPMDecryption(userModelInstance["LEPM"], decryptionAlgorithm, key, iv),

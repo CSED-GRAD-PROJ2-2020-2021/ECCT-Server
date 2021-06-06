@@ -56,11 +56,12 @@ const encryptJsonObj = (JsonObj, encryptionAlgorithm, key, iv) => {
 
 const encryptList = (list, encryptionAlgorithm, key, iv) => {
   const encryptedList = list.map((listInstance) =>
-    encryptData(listInstance, encryptionAlgorithm, key, iv)
+    encryptData(listInstance, key, iv)
   );
 
   return encryptedList;
 };
+
 const encryptUser = (data, keyHex, ivHex) => {
   return encryptData(data, keyHex, ivHex);
 };

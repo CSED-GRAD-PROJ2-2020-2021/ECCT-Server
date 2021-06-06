@@ -25,14 +25,15 @@ const register = async (req, res) => {
     const authenticationToken = jasonWebToken.generateAuthToken(
       true,
       undefined,
-      Math.floor(Date.now() / 1000) + 60 * 60
+      Math.floor(Date.now() / 1000) + 1 // one hour for now
     );
     const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
     const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });
     await newAuth.save();
     console.log("registration 1 success");
-    res.status(200).send({ authenticationToken });
+    res.setHeader("Authorization", "Bearer " + authenticationToken);
+    res.status(200).send({ message: "authentication token is sent" });
   } catch (error) {
     res.status(403).send({ error: error.message });
   }
@@ -69,45 +70,46 @@ const userAuthAndRegister = async (req, res) => {
     // assign the completion of user registration process
     req.authObject.isRegistered = true;
     // delete any relation between the authentication token and user phone number
+    const hashedPhoneNumber = req.authObject.hashedPhoneNumber;
     req.authObject.hashedPhoneNumber = "";
     await req.authObject.save();
     console.log("registration 2 success");
-    res.status(201).send({ id: req.authObject.hashedPhoneNumber, key, iv });
+    res.status(201).send({ id: hashedPhoneNumber, key, iv });
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: error.message });
   }
 };
 
-const createNewAuthToken = async (req, res) => {
-  try {
-    if (!req.body.authenticationToken) {
-      throw new Error("Missing expired authentication token");
-    }
-    // check if the authentication token is expired or not
-    if (!jasonWebToken.isExpired(req.body.authenticationToken)) {
-      throw new Error("Authentication token is not expired yet");
-    }
-    const expiredAuthToken = req.body.authenticationToken;
-    // check if the the token is a valid user auth token
-    const auth = await AuthenticationModel.findOneAndDelete({
-      authenticationToken: expiredAuthToken,
-    });
-    if (!auth) {
-      throw new Error("Please Authenticate");
-    }
+// const createNewAuthToken = async (req, res) => {
+//   try {
+//     if (!req.body.authenticationToken) {
+//       throw new Error("Missing expired authentication token");
+//     }
+//     // check if the authentication token is expired or not
+//     if (!jasonWebToken.isExpired(req.body.authenticationToken)) {
+//       throw new Error("Authentication token is not expired yet");
+//     }
+//     const expiredAuthToken = req.body.authenticationToken;
+//     // check if the the token is a valid user auth token
+//     const auth = await AuthenticationModel.findOneAndDelete({
+//       authenticationToken: expiredAuthToken,
+//     });
+//     if (!auth) {
+//       throw new Error("Please Authenticate");
+//     }
 
-    const newAuthToken = jasonWebToken.generateAuthToken();
-    const newAuth = new AuthenticationModel({
-      authenticationToken: newAuthToken,
-      pinCode: auth.pinCode,
-      hashedPhoneNumber: auth.hashedPhoneNumber,
-      isRegistered: auth.isRegistered,
-    });
-    await newAuth.save();
-    res.status(201).send({ authenticationToken: newAuthToken });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
-module.exports = { register, userAuthAndRegister, createNewAuthToken };
+//     const newAuthToken = jasonWebToken.generateAuthToken();
+//     const newAuth = new AuthenticationModel({
+//       authenticationToken: newAuthToken,
+//       pinCode: auth.pinCode,
+//       hashedPhoneNumber: auth.hashedPhoneNumber,
+//       isRegistered: auth.isRegistered,
+//     });
+//     await newAuth.save();
+//     res.status(201).send({ authenticationToken: newAuthToken });
+//   } catch (error) {
+//     res.status(400).send({ error: error.message });
+//   }
+// };
+module.exports = { register, userAuthAndRegister /*, createNewAuthToken*/ };

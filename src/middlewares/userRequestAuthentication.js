@@ -1,15 +1,21 @@
 const jwt = require("jsonwebtoken");
-const authenticationModel = require("../models/AuthenticationModel");
+const AuthenticationModel = require("../models/AuthenticationModel");
+const jwtManipulator = require("../utilities/authentication/JWT");
 
 const authenticate = async (req, res, next) => {
+  var token = "";
   try {
     if (!req.header("Authorization")) {
       throw new Error("Missing Authentication token");
     }
-    const token = req.header("Authorization").replace("Bearer ", "");
+
+    token = req.header("Authorization").replace("Bearer ", "");
+    if (token == "") {
+      throw new Error("Please authenticate.");
+    }
     //check whether  signature is valid
     const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const authObject = await authenticationModel.findOne({
+    const authObject = await AuthenticationModel.findOne({
       authenticationToken: token,
     });
     if (!authObject) {
@@ -18,7 +24,31 @@ const authenticate = async (req, res, next) => {
     req.authObject = authObject;
     next();
   } catch (error) {
-    res.status(401).send({ error: error.message });
+    if (error.message == "jwt expired") {
+      const auth = await AuthenticationModel.findOneAndDelete({
+        authenticationToken: token,
+      });
+      if (!auth) {
+        res.status(403).send({ error: "Please authenticate." });
+      }
+      const newAuthToken = jwtManipulator.generateAuthToken(
+        true,
+        undefined,
+        Math.floor(Date.now() / 1000) + 60 * 60 // one hour for now
+      );
+      const newAuth = new AuthenticationModel({
+        authenticationToken: newAuthToken,
+        pinCode: auth.pinCode,
+        hashedPhoneNumber: auth.hashedPhoneNumber,
+        isRegistered: auth.isRegistered,
+      });
+      await newAuth.save();
+      req.authObject = newAuth;
+      res.setHeader("Authorization", "Bearer " + newAuthToken);
+      next();
+    } else {
+      res.status(403).send({ error: error.message });
+    }
   }
 };
 

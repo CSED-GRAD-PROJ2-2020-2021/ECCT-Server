@@ -11,7 +11,8 @@ const infectedNodeDeclarationReq = async (req, res) => {
     }
     // validate health authority token
     const healthAuthorityToken = req.body.healthAuthorityToken;
-    const authorized = await AuthTokensModel.findOneAndDelete({ HAToken: healthAuthorityToken });
+    //const authorized = await AuthTokensModel.findOneAndDelete({ HAToken: healthAuthorityToken });
+    const authorized = await AuthTokensModel.findOne({ HAToken: healthAuthorityToken });
     if (!authorized) {
       throw new Error("unauthorized request, invalid health authority token");
     }
