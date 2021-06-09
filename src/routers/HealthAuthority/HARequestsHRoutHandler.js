@@ -4,6 +4,6 @@ const HAAuthentication = require("../../middlewares/healtAuthorityAuthentication
 
 const router = express.Router();
 
-router.post("/addNewHATokens", HAServices.addNewTokens);
+router.get("/getNewTokens", HAAuthentication.authenticate, HAServices.addNewTokens);
 
 module.exports = router;

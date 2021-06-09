@@ -5,10 +5,9 @@ const authenticate = (req, res, next) => {
     if (!req.header("Authorization")) {
       throw new Error("Missing Authentication token");
     }
-    const token = req.header("Authorization").replace("Bearer ", "");
-    const HASecret = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const HASecret = req.header("Authorization").replace("Bearer ", "");
     if (HASecret != process.env.HEALTH_AUTHORITY_SECRET) {
-      throw new Error("Please Authenticate !");
+      throw new Error("Please authenticate.");
     }
     next();
   } catch (error) {

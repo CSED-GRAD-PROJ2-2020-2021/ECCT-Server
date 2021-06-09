@@ -21,11 +21,11 @@ const register = async (req, res) => {
     if (prevAuth) {
       throw new Error("A request has been already sent");
     }
-
+    // authentication token creation
     const authenticationToken = jasonWebToken.generateAuthToken(
       true,
       undefined,
-      Math.floor(Date.now() / 1000) + 1 // one hour for now
+      Math.floor(Date.now() / 1000) + 60 * 60 // one hour for now
     );
     const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
@@ -51,7 +51,7 @@ const userAuthAndRegister = async (req, res) => {
     const pinCode = req.authObject.pinCode;
     // validate pin code received from user to the code stored in user record
     if (pinCode != req.body.pinCode) {
-      throw new Error("wrong pincode, please resend the correct pincode");
+      throw new Error("wrong pin code, please resend the correct pin code");
     }
 
     // creation of user data
@@ -81,35 +81,4 @@ const userAuthAndRegister = async (req, res) => {
   }
 };
 
-// const createNewAuthToken = async (req, res) => {
-//   try {
-//     if (!req.body.authenticationToken) {
-//       throw new Error("Missing expired authentication token");
-//     }
-//     // check if the authentication token is expired or not
-//     if (!jasonWebToken.isExpired(req.body.authenticationToken)) {
-//       throw new Error("Authentication token is not expired yet");
-//     }
-//     const expiredAuthToken = req.body.authenticationToken;
-//     // check if the the token is a valid user auth token
-//     const auth = await AuthenticationModel.findOneAndDelete({
-//       authenticationToken: expiredAuthToken,
-//     });
-//     if (!auth) {
-//       throw new Error("Please Authenticate");
-//     }
-
-//     const newAuthToken = jasonWebToken.generateAuthToken();
-//     const newAuth = new AuthenticationModel({
-//       authenticationToken: newAuthToken,
-//       pinCode: auth.pinCode,
-//       hashedPhoneNumber: auth.hashedPhoneNumber,
-//       isRegistered: auth.isRegistered,
-//     });
-//     await newAuth.save();
-//     res.status(201).send({ authenticationToken: newAuthToken });
-//   } catch (error) {
-//     res.status(400).send({ error: error.message });
-//   }
-// };
-module.exports = { register, userAuthAndRegister /*, createNewAuthToken*/ };
+module.exports = { register, userAuthAndRegister };

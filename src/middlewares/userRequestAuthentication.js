@@ -10,9 +10,6 @@ const authenticate = async (req, res, next) => {
     }
 
     token = req.header("Authorization").replace("Bearer ", "");
-    if (token == "") {
-      throw new Error("Please authenticate.");
-    }
     //check whether  signature is valid
     const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const authObject = await AuthenticationModel.findOne({

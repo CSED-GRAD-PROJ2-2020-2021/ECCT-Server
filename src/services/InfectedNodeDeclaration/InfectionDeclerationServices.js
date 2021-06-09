@@ -17,19 +17,11 @@ const infectedNodeDeclarationReq = async (req, res) => {
       throw new Error("unauthorized request, invalid health authority token");
     }
 
-    // adding upload date
-    // infectedNodePets = req.body.infectedNodePets;
-    // const uploadDate = dateFormat(new Date(), "isoDate");
-    // EListOfPets = infectedNodePets.map((PET) => {
-    //   EList.PetValidation(PET);
-    //   return { PET, uploadDate };
-    // });
+    // need to validate PET objects
 
-    // adding infection pets in Elist table
-    for (const pet of req.body.infectionPets) {
-      const newInfectionPet = new EList(pet);
-      await newInfectionPet.save();
-    }
+    // saving PETs to EList
+    await EList.create(req.body.infectionPets);
+
     res.status(201).send("Pets have been received successfully");
   } catch (error) {
     console.log(error);
