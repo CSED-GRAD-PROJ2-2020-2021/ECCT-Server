@@ -1,16 +1,16 @@
-const riskCalsses = {
-    low: {
-        min: 0,
-        max: 15 
-    },
-    high: {
-        min: 16,
-        max: 99
-    }
-}
+const riskClasses = {
+  low: {
+    min: 0,
+    max: 15,
+  },
+  high: {
+    min: 16,
+    max: 999999,
+  },
+};
 
 const minRiskScoreThreshold = 11;
 
-const risk_score_normalization_divisor = 50;
+const risk_score_normalization_divisor = 20;
 
-module.exports = {riskCalsses, minRiskScoreThreshold, risk_score_normalization_divisor};
+module.exports = { riskClasses, minRiskScoreThreshold, risk_score_normalization_divisor };

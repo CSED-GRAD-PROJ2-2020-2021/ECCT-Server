@@ -38,7 +38,7 @@ const userSchema = new Schema({
 
 //method to check whether the phone number is valid or not
 userSchema.statics.PhoneNumberValidation = (phoneNumber) => {
-  if (phoneNumber.match(/^(01\d{9})$/g) === null) {
+  if (phoneNumber.match(/^(201\d{9})$/g) === null) {
     throw new Error("Invalid phone number");
   }
   return true;
@@ -49,7 +49,7 @@ userSchema.statics.phoneNumberUniqueness = async (phoneNumber) => {
   hashedPhoneNumber = crypto.createHash("sha256").update(phoneNumber).digest("hex");
   const user = await userModel.findOne({ ID: hashedPhoneNumber });
   if (user) {
-    throw new Error("A user with the same phone number exists !!");
+    throw new Error("A user with the same phone number exists!!");
   }
   return hashedPhoneNumber;
 };

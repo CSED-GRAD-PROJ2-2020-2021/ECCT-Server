@@ -11,6 +11,4 @@ router.post(
   infectionDeclarationServices.infectedNodeDeclarationReq
 );
 
-router.post("/healthAuthorityCode", infectionDeclarationServices.receiveHealthAuthorityTokens);
-
 module.exports = router;

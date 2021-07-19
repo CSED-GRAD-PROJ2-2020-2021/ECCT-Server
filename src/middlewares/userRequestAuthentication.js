@@ -4,15 +4,16 @@ const jwtManipulator = require("../utilities/authentication/JWT");
 
 const authenticate = async (req, res, next) => {
   var token = "";
+  var authObject;
   try {
     if (!req.header("Authorization")) {
       throw new Error("Missing Authentication token");
     }
 
     token = req.header("Authorization").replace("Bearer ", "");
-    //check whether  signature is valid
-    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    const authObject = await AuthenticationModel.findOne({
+    //check whether signature is valid
+    jwt.verify(token, process.env.JWT_SECRET_KEY);
+    authObject = await AuthenticationModel.findOne({
       authenticationToken: token,
     });
     if (!authObject) {
@@ -38,6 +39,7 @@ const authenticate = async (req, res, next) => {
         pinCode: auth.pinCode,
         hashedPhoneNumber: auth.hashedPhoneNumber,
         isRegistered: auth.isRegistered,
+        expirationStartTime: auth.expirationStartTime,
       });
       await newAuth.save();
       req.authObject = newAuth;

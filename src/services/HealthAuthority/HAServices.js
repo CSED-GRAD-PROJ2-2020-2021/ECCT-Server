@@ -3,12 +3,26 @@ const tokensGenerator = require("../../utilities/HealthAuthorityTokens/tokenGene
 
 const getTokens = async (req, res) => {
   try {
-    const HATokens = HATokensModel.find();
-    if (HATokens.length() == 0) {
-      HATokens = tokensGenerator.generateTokens(100); // create tokens and add them to HATokens
+    // if (!req.client.authorized) {
+    //   throw new Error("Unauthorized request!");
+    // }
+    var HATokens = null;
+    const numOfDocs = await HATokensModel.countDocuments({ used: false });
+
+    if (numOfDocs < 10) {
+      HATokens = tokensGenerator.generateTokens(100);
+      // create tokens and add them to HATokens
       await HATokensModel.create(HATokens); // save them
+    } else {
+      HATokens = await HATokensModel.find({ used: false });
     }
-    res.status(200).send({ token: HATokens[0] });
+    await HATokensModel.updateOne({ HAToken: HATokens[0].HAToken }, { used: true }, (err, docs) => {
+      if (err) {
+        throw new Error(err);
+      }
+    });
+    console.log("Health authority token delivered");
+    res.status(200).send({ HAToken: HATokens[0].HAToken });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

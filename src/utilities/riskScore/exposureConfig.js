@@ -1,95 +1,128 @@
 // weight section
 const getTransmissionWeight = (uploadDate, meetingDate) => {
+  uploadDate = new Date(uploadDate);
+  meetingDate = new Date(meetingDate);
+  const diffTime = Math.abs(uploadDate - meetingDate);
+  const delay = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    uploadDate = new Date(uploadDate);
-    meetingDate = new Date(meetingDate);
-    const diffTime = Math.abs(uploadDate - meetingDate);
-    const delay = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+  if (delay < 0 && delay > 14) {
+    console.log("error delay bigger than 14");
+  }
 
-    console.log( 'diff transmission ' + delay);
+  return delay >= 9
+    ? 1
+    : delay == 8
+    ? 2
+    : delay == 7
+    ? 3
+    : delay == 6
+    ? 5
+    : delay == 5
+    ? 7
+    : delay == 4
+    ? 8
+    : delay == 3
+    ? 8
+    : delay == 2
+    ? 8
+    : delay == 1
+    ? 7
+    : delay == 0
+    ? 6
+    : 0;
+};
 
-    if (delay < 0 && delay > 14) {
-        console.log('error delay bigger than 14');
-    }
+// parameter section
+const getTransmissionParameter = (transmissionWeight) => {
+  return transmissionWeight == 8
+    ? 8
+    : transmissionWeight == 7
+    ? 7
+    : transmissionWeight == 6
+    ? 6
+    : transmissionWeight == 5
+    ? 5
+    : transmissionWeight == 4
+    ? 4
+    : transmissionWeight == 3
+    ? 3
+    : transmissionWeight == 2
+    ? 2
+    : transmissionWeight == 1
+    ? 0
+    : 0;
+};
 
-    return (delay >= 9) ? 1:
-        (delay == 8) ? 2:
-        (delay == 7) ? 3:
-        (delay == 6) ? 5:
-        (delay == 5) ? 7:
-        (delay == 4) ? 8:
-        (delay == 3) ? 8:
-        (delay == 2) ? 8:
-        (delay == 1) ? 7:
-        (delay == 0) ? 6:
-        0;
-}
+const getDurationParameter = (duration) => {
+  return duration <= 0
+    ? 0
+    : duration <= 5
+    ? 1
+    : duration <= 10
+    ? 1
+    : duration <= 15
+    ? 1
+    : duration <= 20
+    ? 1
+    : duration <= 25
+    ? 1
+    : duration <= 30
+    ? 1
+    : 1;
+};
 
+const getExposureDayParameter = (exposureDate, meetingDate) => {
+  exposureDate = new Date(exposureDate);
+  meetingDate = new Date(meetingDate);
+  const diffTime = Math.abs(exposureDate - meetingDate);
+  const daysSinceExposure = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-// paramters section
-const getTransmissionParmater = (transmissionWeight) => {
+  // console.log('days since exposure ' + daysSinceExposure);
 
-    return (transmissionWeight == 8) ? 8:
-        (transmissionWeight == 7) ? 7:
-        (transmissionWeight == 6) ? 6:
-        (transmissionWeight == 5) ? 5:
-        (transmissionWeight == 4) ? 4:
-        (transmissionWeight == 3) ? 3:
-        (transmissionWeight == 2) ? 2:
-        (transmissionWeight == 1) ? 0:
-        0;
+  return daysSinceExposure > 14
+    ? 5
+    : daysSinceExposure > 12
+    ? 5
+    : daysSinceExposure > 10
+    ? 5
+    : daysSinceExposure > 8
+    ? 5
+    : daysSinceExposure > 6
+    ? 5
+    : daysSinceExposure > 4
+    ? 5
+    : daysSinceExposure > 2
+    ? 5
+    : 5;
+};
 
-}
+const getAttenuationParameter = (attenuation) => {
+  return attenuation > 73
+    ? 2
+    : attenuation > 63
+    ? 2
+    : attenuation > 51
+    ? 2
+    : attenuation > 33
+    ? 2
+    : attenuation > 27
+    ? 2
+    : attenuation > 15
+    ? 2
+    : attenuation > 10
+    ? 2
+    : 2;
+};
 
-const getDurationParmater = (duration) => {
-
-    return (duration <= 0) ? 0:
-        (duration <= 5) ? 0:
-        (duration <= 10) ? 0:
-        (duration <= 15) ? 1:
-        (duration <= 20) ? 1:
-        (duration <= 25) ? 1:
-        (duration <= 30) ? 1:
-        1;
-}
-
-const getExposureDayParmater = (exposureDate, meetingDate) => {
-
-    exposureDate = new Date(exposureDate);
-    meetingDate = new Date(meetingDate);
-    const diffTime = Math.abs(exposureDate - meetingDate);
-    const daysSinceExposure = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-
-    // console.log('days since exposure ' + daysSinceExposure);
-
-    return (daysSinceExposure > 14) ? 5:
-        (daysSinceExposure > 12) ? 5:
-        (daysSinceExposure > 10) ? 5:
-        (daysSinceExposure > 8) ? 5:
-        (daysSinceExposure > 6) ? 5:
-        (daysSinceExposure > 4) ? 5:
-        (daysSinceExposure > 2) ? 5:
-        5;
-}
-
-const getAttenuationParmater = (attenuation) => {
-
-    return (attenuation > 73) ? 2:
-        (attenuation > 63) ? 2:
-        (attenuation > 51) ? 2:
-        (attenuation > 33) ? 2:
-        (attenuation > 27) ? 2:
-        (attenuation > 15) ? 2:
-        (attenuation > 10) ? 2:
-        2;
-}
-
-
-const calculateTotalRiskScore = (rssi, duration ,uploadDate, meetingDate, exposureDate) => {
-   transmissionWeight =  getTransmissionWeight(uploadDate, meetingDate)
-   return getAttenuationParmater(rssi) * getDurationParmater(duration) * getExposureDayParmater(exposureDate, meetingDate) * getTransmissionParmater(transmissionWeight);
-}
-
+const calculateTotalRiskScore = (rssi, duration, uploadDate, meetingDate, exposureDate) => {
+  transmissionWeight = getTransmissionWeight(uploadDate, meetingDate);
+  return (
+    getAttenuationParameter(rssi) *
+    getDurationParameter(duration) *
+    getExposureDayParameter(exposureDate, meetingDate) *
+    getTransmissionParameter(transmissionWeight)
+  );
+};
 
 /*
 
@@ -106,4 +139,4 @@ var userPets = [{uploadDate: uploadDate1, exposureDate: exposureDate1, meetingDa
 
 */
 
-module.exports = {calculateTotalRiskScore}
+module.exports = { calculateTotalRiskScore };

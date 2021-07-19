@@ -13,6 +13,9 @@ const exposureCheckRequest = async (req, res) => {
     if (!req.body.key || !req.body.iv) {
       throw new Error("Missing pair of key");
     }
+    if (!req.body.exposureTestPets) {
+      throw new Error("exposureTestPets missing");
+    }
 
     // user ID
     const UserID = req.body.id;
@@ -23,6 +26,9 @@ const exposureCheckRequest = async (req, res) => {
 
     // user's exposure test pets
     const exposureTestPets = req.body.exposureTestPets;
+    console.log("-----------------------");
+    console.log(exposureTestPets);
+    console.log("-----------------------");
 
     // check user id
     const User = await UserModel.findOne({ ID: UserID });
@@ -33,7 +39,7 @@ const exposureCheckRequest = async (req, res) => {
 
     /*      danger do not try :(      */
 
-    // decrypte User
+    // decrypt User
     const decryptedUser = decryption.decryptUser(User, key, iv);
 
     // current time in second
@@ -61,7 +67,7 @@ const exposureCheckRequest = async (req, res) => {
           uploadDate: matched.uploadDate.toISOString(),
           meetingDate: matched.meetingDate.toISOString(),
           exposureDate: new Date().toISOString(),
-          RSSI: matched.RSSI,
+          RSSI: Math.abs(matched.RSSI),
           duration: matched.duration,
         });
       }
@@ -69,18 +75,22 @@ const exposureCheckRequest = async (req, res) => {
 
     decryptedUser.LEPM = [/*...decryptedUser.LEPM,*/ ...matchedPets];
 
-    const combinedRiskScore = RiskScore.compinedRiskScore(decryptedUser.LEPM);
+    //console.log(decryptedUser.LEPM);
+    const combinedRiskScore = RiskScore.combinedRiskScore(decryptedUser.LEPM);
 
-    const isAtRisk = RiskScore.calssificationOfCompinedRiskScore(combinedRiskScore);
+    //console.log(combinedRiskScore);
+
+    const isAtRisk = RiskScore.classificationOfCombinedRiskScore(combinedRiskScore);
     // update entries {SRE time of last exposure, ERSA for riskScore, UN if user is in danger} in the user
     decryptedUser.SRE = nowInSecond;
     decryptedUser.ERSA = isAtRisk;
     decryptedUser.UN = isAtRisk == 1 ? true : false;
     const encryptedUser = encryption.encryptUser(decryptedUser, key, iv);
     await UserModel.findOneAndReplace({ ID: UserID }, encryptedUser);
+    console.log("exposure request succeeded");
     res.status(200).send({ isAtRisk });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     res.status(400).send({ error: error.message });
   }
 };

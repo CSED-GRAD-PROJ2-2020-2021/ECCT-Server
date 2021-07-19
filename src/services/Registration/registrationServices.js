@@ -19,7 +19,14 @@ const register = async (req, res) => {
     //check if the user previously sent a request to sign up
     const prevAuth = await AuthenticationModel.findOne({ hashedPhoneNumber: hashedPhoneNumber });
     if (prevAuth) {
-      throw new Error("A request has been already sent");
+      // time (in seconds) since the request had been made
+      const checkExpiration = (Date.now() - prevAuth.expirationStartTime) / 1000;
+      // if the request was made more than 10 minutes ago, delete the authentication token and      // start as a new user
+      if (checkExpiration > 10 * 60 && !prevAuth.isRegistered) {
+        await prevAuth.remove();
+      } else {
+        throw new Error("A request has been already sent");
+      }
     }
     // authentication token creation
     const authenticationToken = jasonWebToken.generateAuthToken(
@@ -27,14 +34,26 @@ const register = async (req, res) => {
       undefined,
       Math.floor(Date.now() / 1000) + 60 * 60 // one hour for now
     );
-    const pinCode = "1234"; //pinCodeManipulation.generatePinCode();
+
+    const pinCode = /*pinCodeManipulation.generatePinCode();*/ "1234";
     //pinCodeManipulation.sendPinCode(phoneNumber, pinCode);
-    const newAuth = new AuthenticationModel({ authenticationToken, pinCode, hashedPhoneNumber });
+
+    const expirationStartTime = Date.now();
+
+    const newAuth = new AuthenticationModel({
+      authenticationToken,
+      pinCode,
+      hashedPhoneNumber,
+      expirationStartTime,
+    });
+
     await newAuth.save();
+
     console.log("registration 1 success");
     res.setHeader("Authorization", "Bearer " + authenticationToken);
     res.status(200).send({ message: "authentication token is sent" });
   } catch (error) {
+    console.log(error.message);
     res.status(403).send({ error: error.message });
   }
 };
@@ -49,8 +68,9 @@ const userAuthAndRegister = async (req, res) => {
       throw new Error("the user registered successfully previously");
     }
     const pinCode = req.authObject.pinCode;
+
     // validate pin code received from user to the code stored in user record
-    if (pinCode != req.body.pinCode) {
+    if (pinCode.localeCompare(req.body.pinCode) != 0) {
       throw new Error("wrong pin code, please resend the correct pin code");
     }
 
@@ -76,6 +96,7 @@ const userAuthAndRegister = async (req, res) => {
     console.log("registration 2 success");
     res.status(201).send({ id: hashedPhoneNumber, key, iv });
   } catch (error) {
+    console.log(error.message);
     console.log(error);
     res.status(400).send({ error: error.message });
   }

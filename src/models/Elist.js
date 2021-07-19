@@ -5,8 +5,6 @@ const EListSchema = new Schema({
   PET: {
     type: String,
     required: true,
-    unique: true,
-    index: true,
   },
   uploadDate: {
     type: Date,

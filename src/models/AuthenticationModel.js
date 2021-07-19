@@ -18,6 +18,10 @@ const AuthenticationSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  expirationStartTime: {
+    type: Number,
+    required: true,
+  },
 });
 
 const Authentication = mongoose.model("Authentication", AuthenticationSchema);

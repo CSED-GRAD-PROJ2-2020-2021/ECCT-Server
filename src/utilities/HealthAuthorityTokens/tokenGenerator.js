@@ -1,8 +1,11 @@
 const randomString = require("randomstring");
 const generateTokens = (numberOfTokens) => {
   let tokens = [];
-  for (counter in numberOfTokens) {
-    tokens.push(randomString.generate({ length: 50, charset: "numeric" }));
+  for (let i = 0; i < numberOfTokens; i++) {
+    const token = {
+      HAToken: randomString.generate({ length: 50, charset: "numeric" }),
+    };
+    tokens.push(token);
   }
 
   return tokens;

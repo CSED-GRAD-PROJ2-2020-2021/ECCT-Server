@@ -8,6 +8,10 @@ const healthAuthTokensSchema = new Schema({
     unique: true,
     index: true,
   },
+  used: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const healthAuthTokensModel = mongoose.model("healthAuthTokens", healthAuthTokensSchema);
